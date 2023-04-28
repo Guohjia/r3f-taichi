@@ -6,4 +6,5 @@ export default defineConfig({
     { path: "/docs", component: "docs" },
   ],
   npmClient: 'npm',
+  publicPath: '/r3f-taichi/dist/'
 });
