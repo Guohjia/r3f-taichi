@@ -6,7 +6,7 @@ export default defineConfig({
     { path: "/docs", component: "docs" },
   ],
   npmClient: 'npm',
-  publicPath: '/r3f-taichi/dist/',
-  base: '/r3f-taichi/dist/',
+  publicPath: '/r3f-taichi/',
+  base: '/r3f-taichi/',
   hash: true
 });
