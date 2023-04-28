@@ -7,5 +7,6 @@ export default defineConfig({
   ],
   npmClient: 'npm',
   publicPath: '/r3f-taichi/dist/',
-  base: '/r3f-taichi/dist/'
+  base: '/r3f-taichi/dist/',
+  hash: true
 });
