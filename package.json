@@ -10,6 +10,11 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
+    "@koa/cors": "^4.0.0",
+    "antd": "^5.4.6",
+    "axios": "^1.4.0",
+    "koa": "^2.14.2",
+    "koa-router": "^12.0.0",
     "umi": "^4.0.67"
   },
   "devDependencies": {
