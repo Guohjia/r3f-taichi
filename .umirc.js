@@ -2,8 +2,20 @@ import { defineConfig } from "umi";
 
 export default defineConfig({
   routes: [
-    { path: "/", component: "index" },
-    { path: "/docs", component: "docs" },
+    {
+      path: "/",
+      component: '@/pages/index',
+      wrappers: [
+        '@/wrappers/mainAuth',
+      ]
+    },
+    {
+      path: "/login",
+      component: "login",
+      wrappers: [
+        '@/wrappers/loginAuth',
+      ]
+    },
   ],
   npmClient: 'npm',
   publicPath: '/r3f-taichi/',
