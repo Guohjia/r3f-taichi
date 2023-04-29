@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@koa/cors": "^4.0.0",
+    "@react-three/drei": "^9.66.1",
+    "@react-three/fiber": "^8.13.0",
     "antd": "^5.4.6",
     "axios": "^1.4.0",
     "koa": "^2.14.2",
