@@ -1,7 +1,7 @@
 import { useRef, useState, Suspense, useMemo, useEffect } from 'react';
 import queryString from 'query-string';
 import { Canvas, useFrame, useLoader, extend } from '@react-three/fiber'
-import { OrbitControls, TransformControls, Points, PointMaterial, Text } from '@react-three/drei';
+import { Center, Text3D, OrbitControls, TransformControls, Points, PointMaterial, Text, useMatcapTexture, useNormalTexture } from '@react-three/drei';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import DatGui, { DatColor, DatNumber, DatSelect, DatBoolean } from "react-dat-gui";
 
@@ -10,8 +10,8 @@ import DatGui, { DatColor, DatNumber, DatSelect, DatBoolean } from "react-dat-gu
 // import { DragControls } from 'three/examples/jsm/controls/DragControls';
 // import * as random from 'maath/random/dist/maath-random.esm'
 
-import { TextGeometry } from 'three-stdlib'
-extend({ TextGeometry })
+// import { TextGeometry } from 'three-stdlib'
+// extend({ TextGeometry })
 
 import style from './index.less';
 import "react-dat-gui/build/react-dat-gui.css";
@@ -20,7 +20,6 @@ const textloaderSrc = 'https://threejs.org/examples/fonts/helvetiker_regular.typ
 
 /**
  * TODO:
- * 2、位置和颜⾊参数可配置。
  * 3、undo、redo（以通过 Ctrl+Z/Ctrl+Y 实现 Redo
 Undo。）
  */
@@ -47,60 +46,82 @@ Undo。）
 // }
 
 const IndexPage = () => {
-  const font = useLoader(FontLoader, textloaderSrc);
+  // const query = queryString.parse(window.location.search);
+  // const name = query.name;
+  // const font = useLoader(FontLoader, textloaderSrc);
   const [textOpt, setTextOpt] = useState({
-    font,
     size: 0.5,
     height: 0.1,
     bevelEnabled: false,
     bevelSize: 0.01,
-    bevelThickness: 0
+    bevelThickness: 0,
+    color: '#FF718F'
   }); 
-  const query = queryString.parse(window.location.search);
-  const name = query.name;
-  const cube = useRef(null);
 
-  const controlsRef = useRef(null)
-  // const config = useMemo(() => ({
-  //   font,
-  //   size: 0.2,
-  //   height: 1,
-  //   // curveSegments: 12,
-  //   // curveSegments: 10,
-  //   // bevelEnabled: false,
-  //   // position: [0, 0, 0]
-  // }), [font])
+  const materialColors = ['#FF718F', '#29C1A2', '#FF9060', '#823FFF', 'skyblue'];
+
+  const cube = useRef(null);
+  // const [matcap] = useMatcapTexture('3E2335_D36A1B_8E4A2E_2842A5', 256)
+
+  const canvasRef = useRef(null);
   const text = 'name'; 
 
+  const onMeshClick = () => {
+    console.log('onMeshClick')
+    // cube.current.material.color.set(`hls(${Math.random()*360}, 100%, 75%)`)
+  }
+
   useEffect(() => {
-    console.log('controlsRef', controlsRef)
-  }, [controlsRef])
+    console.log('canvasRef', canvasRef)
+  }, [canvasRef])
+
   return (
     <div className={style.ct}>
-      <Canvas>
+      <Canvas ref={canvasRef}>
         {/* <ambientLight intensity={0.5} /> */}
         {/* <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} /> */}
         {/* <pointLight position={[-10, -10, -10]} /> */}
         {/* <Stars /> */}
-        <mesh position={[-2, 0, 0]} ref={cube}>
-          <textGeometry args={[text, textOpt]}/>
+
+        {/* 文本内容 */}
+        {/* <mesh position={[-3, 0, 0]} ref={cube}> */}
+          {/* <textGeometry args={[text, textOpt]}/> */}
           {/* <Text font="https://fonts.gstatic.com/s/trirong/v3/7r3GqXNgp8wxdOdOn4so3g.woff">text test</Text> */}
-          <meshNormalMaterial color="red"/>
+          {/* <meshNormalMaterial color="red"/> */}
+        {/* </mesh> */}
+
+        <mesh position={[0, 0, 0]} ref={cube} onClick={onMeshClick}>
+          <Center>
+            <Text3D
+              {...textOpt}
+              color="#FF9060"
+              font={textloaderSrc}>
+              asd12
+              {/* <meshStandardMaterial color='red' /> */}
+              {/* <meshNormalMaterial color='red' /> */}
+              <meshMatcapMaterial color={textOpt.color} />
+            </Text3D>
+          </Center>
         </mesh>
-        {/* <Suspense fallback={null}>
-          <textGeometry args={[text, config]} />
-          <boxGeometry args={[1, 1, 1]} />
-          <meshNormalMaterial />
-        </Suspense> */}
-        {/* <OrbitControls
-          ref={controlsRef}
+
+
+        {/* <Suspense fallback={null}> */}
+          {/* <textGeometry args={[text, config]} /> */}
+          {/* <boxGeometry args={[1, 1, 1]} /> */}
+          {/* <meshNormalMaterial /> */}
+        {/* </Suspense> */}
+
+        <OrbitControls
           makeDefault
           // autoRotate
           // onStart={e => {
           //   console.log('start', e)
           // }}
-        /> */}
-        <TransformControls object={cube}/>
+        />
+
+        {/* <TransformControls object={cube} onObjectChange={e => {
+           console.log('start', e)
+         }}/> */}
       </Canvas>
       <DatGui data={textOpt} onUpdate={setTextOpt}>
         <DatNumber path="size" min={0.2} max={20} step={0.1} />
@@ -108,6 +129,7 @@ const IndexPage = () => {
         <DatBoolean path="bevelEnabled" />
         <DatNumber path="bevelSize" min={0.01} max={10} step={0.01} />
         <DatNumber path="bevelThickness" min={0} max={10} step={0.1} />
+        <DatSelect path="color" options={materialColors} />
       </DatGui>
     </div>
   );
