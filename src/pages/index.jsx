@@ -3,9 +3,9 @@ import queryString from 'query-string';
 import { Canvas, useFrame, useLoader, extend } from '@react-three/fiber'
 import { OrbitControls, TransformControls, Points, PointMaterial, Text } from '@react-three/drei';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import DatGui, { DatColor, DatNumber, DatSelect } from "react-dat-gui";
+import DatGui, { DatColor, DatNumber, DatSelect, DatBoolean } from "react-dat-gui";
 
-// import "react-dat-gui/dist/index.css";
+// import "react-dat-gui/dist/index.css"; 、
 
 // import { DragControls } from 'three/examples/jsm/controls/DragControls';
 // import * as random from 'maath/random/dist/maath-random.esm'
@@ -20,7 +20,9 @@ const textloaderSrc = 'https://threejs.org/examples/fonts/helvetiker_regular.typ
 
 /**
  * TODO:
- * 3、undo、redo
+ * 2、位置和颜⾊参数可配置。
+ * 3、undo、redo（以通过 Ctrl+Z/Ctrl+Y 实现 Redo
+Undo。）
  */
 // function Stars(props) {
 //   const ref = useRef()
@@ -48,8 +50,11 @@ const IndexPage = () => {
   const font = useLoader(FontLoader, textloaderSrc);
   const [textOpt, setTextOpt] = useState({
     font,
-    size: 0.2,
-    height: 1,
+    size: 0.5,
+    height: 0.1,
+    bevelEnabled: false,
+    bevelSize: 0.01,
+    bevelThickness: 0
   }); 
   const query = queryString.parse(window.location.search);
   const name = query.name;
@@ -80,7 +85,7 @@ const IndexPage = () => {
         <mesh position={[-2, 0, 0]} ref={cube}>
           <textGeometry args={[text, textOpt]}/>
           {/* <Text font="https://fonts.gstatic.com/s/trirong/v3/7r3GqXNgp8wxdOdOn4so3g.woff">text test</Text> */}
-          <meshNormalMaterial />
+          <meshNormalMaterial color="red"/>
         </mesh>
         {/* <Suspense fallback={null}>
           <textGeometry args={[text, config]} />
@@ -99,6 +104,10 @@ const IndexPage = () => {
       </Canvas>
       <DatGui data={textOpt} onUpdate={setTextOpt}>
         <DatNumber path="size" min={0.2} max={20} step={0.1} />
+        <DatNumber path="height" min={0.1} max={10} step={0.1} />
+        <DatBoolean path="bevelEnabled" />
+        <DatNumber path="bevelSize" min={0.01} max={10} step={0.01} />
+        <DatNumber path="bevelThickness" min={0} max={10} step={0.1} />
       </DatGui>
     </div>
   );
