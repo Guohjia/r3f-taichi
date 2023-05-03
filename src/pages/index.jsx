@@ -18,11 +18,6 @@ import "react-dat-gui/build/react-dat-gui.css";
 
 const textloaderSrc = 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json';
 
-/**
- * TODO:
- * 3、undo、redo（以通过 Ctrl+Z/Ctrl+Y 实现 Redo
-Undo。）
- */
 // function Stars(props) {
 //   const ref = useRef()
 //   const [sphere] = useState(() => random.inSphere(new Float32Array(5000), { radius: 1 }))
@@ -46,8 +41,23 @@ Undo。）
 // }
 
 const IndexPage = () => {
-  // const query = queryString.parse(window.location.search);
-  // const name = query.name;
+  const query = queryString.parse(window.location.search);
+  const name = query.name;
+  const undoStack = useRef([
+    {
+      actionType: 'datagui',
+      data: {
+        size: 0.5,
+        height: 0.1,
+        bevelEnabled: false,
+        bevelSize: 0.01,
+        bevelThickness: 0,
+        color: '#FF718F'
+      }
+    }
+  ]);
+  const redoStack= useRef([]);
+
   // const font = useLoader(FontLoader, textloaderSrc);
   const [textOpt, setTextOpt] = useState({
     size: 0.5,
@@ -64,20 +74,68 @@ const IndexPage = () => {
   // const [matcap] = useMatcapTexture('3E2335_D36A1B_8E4A2E_2842A5', 256)
 
   const canvasRef = useRef(null);
-  const text = 'name'; 
+  // const text = 'name'; 
 
-  const onMeshClick = () => {
-    console.log('onMeshClick')
-    // cube.current.material.color.set(`hls(${Math.random()*360}, 100%, 75%)`)
+  const onUndo = () => {
+    if (undoStack.current.length > 1) {
+      const opData = undoStack.current.pop();
+      const nowData = undoStack.current[undoStack.current.length - 1];
+
+      if (opData.actionType === 'datagui') {
+        setTextOpt({
+          ...nowData.data
+        })
+      } else {
+        // 平移操作
+      }
+
+      // redoStack保存移除的undoStack栈顶快照数据
+      redoStack.current.push(opData);
+    }
+  }
+
+  const onRedo = () => {
+    if (redoStack.current.length > 0) {
+      const opData = redoStack.current.pop();
+
+      if (opData.actionType === 'datagui') {
+        setTextOpt({
+          ...opData.data
+        })
+      } else {
+        // 平移操作
+      }
+  
+      undoStack.current.push(opData);
+    }
+  }
+
+  const onKeyDown = (e) => {
+    // 阻止chrome默认打开历史记录页面
+    e.preventDefault();
+
+    // 兼容windows、mac
+    if (e.ctrlKey || e.metaKey) {
+      if (e.code === 'KeyZ') {
+          onUndo();
+      } else if (e.code === 'KeyY') {
+          onRedo();
+      }
+     }
   }
 
   useEffect(() => {
-    console.log('canvasRef', canvasRef)
-  }, [canvasRef])
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
 
   return (
     <div className={style.ct}>
-      <Canvas ref={canvasRef}>
+      <Canvas
+        ref={canvasRef}>
         {/* <ambientLight intensity={0.5} /> */}
         {/* <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} /> */}
         {/* <pointLight position={[-10, -10, -10]} /> */}
@@ -90,13 +148,13 @@ const IndexPage = () => {
           {/* <meshNormalMaterial color="red"/> */}
         {/* </mesh> */}
 
-        <mesh position={[0, 0, 0]} ref={cube} onClick={onMeshClick}>
+        <mesh position={[0, 0, 0]} ref={cube}>
           <Center>
             <Text3D
               {...textOpt}
               color="#FF9060"
               font={textloaderSrc}>
-              asd12
+              {name}
               {/* <meshStandardMaterial color='red' /> */}
               {/* <meshNormalMaterial color='red' /> */}
               <meshMatcapMaterial color={textOpt.color} />
@@ -119,11 +177,33 @@ const IndexPage = () => {
           // }}
         />
 
-        {/* <TransformControls object={cube} onObjectChange={e => {
-           console.log('start', e)
-         }}/> */}
+        <TransformControls
+          onPointerUp={() => {
+            console.log('onPointerUp', e)
+          }}
+            onPointerMissed={(e) => {
+              console.log('onPointerMissed', e)
+            }}
+            object={cube}
+            onPointerEnter={(a, b) => {
+              console.log('onPointerEnter', a, b)
+            }}
+            onPointerOver={(a, b) => {
+              console.log('onPointerOver', a, b)
+            }}
+            onPointerOut={(a, b) => {
+              console.log('onChange', a, b)
+            }} />
       </Canvas>
-      <DatGui data={textOpt} onUpdate={setTextOpt}>
+      <DatGui data={textOpt}
+        onUpdate={(data) => {
+        undoStack.current.push({
+          actionType: 'datagui',
+          data
+        });
+
+        setTextOpt(data);
+      }}>
         <DatNumber path="size" min={0.2} max={20} step={0.1} />
         <DatNumber path="height" min={0.1} max={10} step={0.1} />
         <DatBoolean path="bevelEnabled" />
