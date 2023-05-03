@@ -2,8 +2,10 @@ import {
   Button,
   message
 } from 'antd';
-import YAY from '../assets/yay.jpg'
+// import YAY from '../assets/yay.jpg'
 // import server from '../server'
+
+import style from './login.less';
 
 export const CLIENT_ID = '9d300717e9196fb7b135';
 export const REDIRECT_URL = 'http://localhost:8080/oauth/github'
@@ -15,12 +17,8 @@ export default function HomePage() {
   }
 
   return (
-    <div>
-      <p>
-        github pages测试666
-      </p>
-      <img src={YAY} alt="" />
-      <div><Button type="primary" onClick={onLogin}>点我登录</Button></div>
+    <div className={style.login}>
+      <Button type="primary" onClick={onLogin} size="large">点我登录</Button>
     </div>
   );
 }
