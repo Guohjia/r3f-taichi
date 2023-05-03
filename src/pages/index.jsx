@@ -5,6 +5,7 @@ import { Center, Text3D, OrbitControls, TransformControls, Points, PointMaterial
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import DatGui, { DatColor, DatNumber, DatSelect, DatBoolean } from "react-dat-gui";
 
+import debounce from 'lodash.debounce';
 // import "react-dat-gui/dist/index.css"; 、
 
 // import { DragControls } from 'three/examples/jsm/controls/DragControls';
@@ -52,11 +53,17 @@ const IndexPage = () => {
         bevelEnabled: false,
         bevelSize: 0.01,
         bevelThickness: 0,
-        color: '#FF718F'
+        color: '#FF718F',
+        offset: {
+          x: 0,
+          y: 0,
+          z: 0
+        }
       }
     }
   ]);
   const redoStack= useRef([]);
+  const transRef = useRef(null);
 
   // const font = useLoader(FontLoader, textloaderSrc);
   const [textOpt, setTextOpt] = useState({
@@ -65,7 +72,12 @@ const IndexPage = () => {
     bevelEnabled: false,
     bevelSize: 0.01,
     bevelThickness: 0,
-    color: '#FF718F'
+    color: '#FF718F',
+    offset: {
+      x: 0,
+      y: 0,
+      z: 0
+    }
   }); 
 
   const materialColors = ['#FF718F', '#29C1A2', '#FF9060', '#823FFF', 'skyblue'];
@@ -76,9 +88,33 @@ const IndexPage = () => {
   const canvasRef = useRef(null);
   // const text = 'name'; 
 
+  const onObjectChange = debounce(() => {
+      const newData = {
+        ...textOpt,
+        offset: {
+          ...transRef.current.offset
+        }
+      }
+      setTextOpt({
+        ...newData
+      });
+
+      undoStack.current.push({
+        actionType: 'datagui',
+        data: {
+          ...newData
+        }
+      });
+  }, 1000, {
+    trailing: true
+  });
+
   const onUndo = () => {
+    // 保留最初的快照
     if (undoStack.current.length > 1) {
       const opData = undoStack.current.pop();
+      
+      // 渲染上一份快照
       const nowData = undoStack.current[undoStack.current.length - 1];
 
       if (opData.actionType === 'datagui') {
@@ -148,7 +184,9 @@ const IndexPage = () => {
           {/* <meshNormalMaterial color="red"/> */}
         {/* </mesh> */}
 
-        <mesh position={[0, 0, 0]} ref={cube}>
+        <mesh
+          position={[textOpt.offset.x, textOpt.offset.y, textOpt.offset.z]}
+          ref={cube}>
           <Center>
             <Text3D
               {...textOpt}
@@ -178,22 +216,9 @@ const IndexPage = () => {
         />
 
         <TransformControls
-          onPointerUp={() => {
-            console.log('onPointerUp', e)
-          }}
-            onPointerMissed={(e) => {
-              console.log('onPointerMissed', e)
-            }}
-            object={cube}
-            onPointerEnter={(a, b) => {
-              console.log('onPointerEnter', a, b)
-            }}
-            onPointerOver={(a, b) => {
-              console.log('onPointerOver', a, b)
-            }}
-            onPointerOut={(a, b) => {
-              console.log('onChange', a, b)
-            }} />
+          object={cube}
+          onObjectChange={onObjectChange}
+          ref={transRef} />
       </Canvas>
       <DatGui data={textOpt}
         onUpdate={(data) => {
