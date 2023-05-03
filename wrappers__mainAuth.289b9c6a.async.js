@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[68],{25994:function(E,s,n){n.r(s);var u=n(93578),r=n(94785),a=n(86074);s.default=function(){var t=r.Z.parse(window.location.search),e=t.name,i=!!e;return i?(0,a.jsx)(u.j3,{}):(0,a.jsx)(u.Fg,{to:"/login"})}}}]);
