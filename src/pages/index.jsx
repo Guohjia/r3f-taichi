@@ -46,19 +46,16 @@ const IndexPage = () => {
   const name = query.name;
   const undoStack = useRef([
     {
-      actionType: 'datagui',
-      data: {
-        size: 0.5,
-        height: 0.1,
-        bevelEnabled: false,
-        bevelSize: 0.01,
-        bevelThickness: 0,
-        color: '#FF718F',
-        offset: {
-          x: 0,
-          y: 0,
-          z: 0
-        }
+      size: 0.5,
+      height: 0.1,
+      bevelEnabled: false,
+      bevelSize: 0.01,
+      bevelThickness: 0,
+      color: '#FF718F',
+      offset: {
+        x: 0,
+        y: 0,
+        z: 0
       }
     }
   ]);
@@ -92,7 +89,7 @@ const IndexPage = () => {
       const newData = {
         ...textOpt,
         offset: {
-          ...transRef.current.offset
+          ...cube.current.position
         }
       }
       setTextOpt({
@@ -100,12 +97,9 @@ const IndexPage = () => {
       });
 
       undoStack.current.push({
-        actionType: 'datagui',
-        data: {
-          ...newData
-        }
+        ...newData
       });
-  }, 1000, {
+  }, 500, {
     trailing: true
   });
 
@@ -117,13 +111,10 @@ const IndexPage = () => {
       // 渲染上一份快照
       const nowData = undoStack.current[undoStack.current.length - 1];
 
-      if (opData.actionType === 'datagui') {
-        setTextOpt({
-          ...nowData.data
-        })
-      } else {
-        // 平移操作
-      }
+      // 渲染快照
+      setTextOpt({
+        ...nowData
+      })
 
       // redoStack保存移除的undoStack栈顶快照数据
       redoStack.current.push(opData);
@@ -134,13 +125,10 @@ const IndexPage = () => {
     if (redoStack.current.length > 0) {
       const opData = redoStack.current.pop();
 
-      if (opData.actionType === 'datagui') {
-        setTextOpt({
-          ...opData.data
-        })
-      } else {
-        // 平移操作
-      }
+      // 渲染快照
+      setTextOpt({
+        ...opData
+      })
   
       undoStack.current.push(opData);
     }
@@ -223,8 +211,10 @@ const IndexPage = () => {
       <DatGui data={textOpt}
         onUpdate={(data) => {
         undoStack.current.push({
-          actionType: 'datagui',
-          data
+          ...data,
+          offset: {
+            ...cube.current.position
+          }
         });
 
         setTextOpt(data);
